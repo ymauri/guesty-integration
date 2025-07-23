@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.p~ 
+*.egg
+*.egg-info/
+*.log
+*.sqlite3
+*.db
+
+# Byte-compiled / optimized / DLL files
+*.so
+*.dll
+*.dylib
+*.o
+*.a
+
+# Environment
+.env
+.env.*
+
+# Virtualenv
+venv/
+ENV/
+env/
+.venv/
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# Mac/Linux
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Uvicorn reload artifacts
+*.reload
+
+# Migrations (if using Alembic later)
+migrations/
