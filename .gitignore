@@ -47,3 +47,7 @@ desktop.ini
 
 # Migrations (if using Alembic later)
 migrations/
+
+# Cache files
+.cache/
+*.cache
