@@ -5,6 +5,11 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    GUESTY_CLIENT_ID: str
+    GUESTY_CLIENT_SECRET: str
+    GUESTY_AUTH_URL: str
+    GUESTY_API_BASE_URL: str
+    ENVIRONMENT: str = "development"
 
     class Config:
         env_file = ".env"
