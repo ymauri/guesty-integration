@@ -5,7 +5,10 @@ from shared.security import create_access_token
 from domain.user.entities import User
 from domain.user.value_objects import UserRole
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timedelta
+from config import get_settings
+
+settings = get_settings()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
