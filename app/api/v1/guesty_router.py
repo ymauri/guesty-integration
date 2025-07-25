@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from infrastructure.guesty.guesty_client import GuestyClient
 from shared.cache import get_cache
 from shared.dependencies import only_admins
+from api.v1.schemas.guesty_schema import RegisterWebhookRequest
 
 router = APIRouter()
 
@@ -11,9 +12,9 @@ async def get_webhooks(cache = Depends(get_cache), role: str = Depends(only_admi
     return await guesty.list_webhooks()
 
 @router.post("/webhooks/register")
-async def register_webhook(target_url: str, events: list[str], cache = Depends(get_cache), role: str = Depends(only_admins)):
+async def register_webhook(webhook: RegisterWebhookRequest, cache = Depends(get_cache), role: str = Depends(only_admins)):
     guesty = GuestyClient(cache)
-    return await guesty.register_webhook(target_url, events)
+    return await guesty.register_webhook(webhook.target_url, webhook.events)
 
 @router.delete("/webhooks/{webhook_id}")
 async def delete_webhook(webhook_id: str, cache = Depends(get_cache), role: str = Depends(only_admins)):
