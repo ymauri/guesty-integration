@@ -19,7 +19,7 @@ def get_current_user_role(token: str = Depends(oauth2_scheme)) -> UserRole:
         if not role:
             raise ValueError("Missing role in token")
         return UserRole(role)
-    except Exception as error:
+    except (JWTError, ValueError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
