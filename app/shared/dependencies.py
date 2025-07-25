@@ -2,6 +2,7 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from domain.user.value_objects import UserRole
+from typing import Annotated
 
 # These should eventually be imported from your config
 SECRET_KEY = "your-secret-key"
@@ -21,3 +22,12 @@ def get_current_user_role(token: str = Depends(oauth2_scheme)) -> UserRole:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
         )
+
+# Elegant wrappers
+def only_admins(role: Annotated[UserRole, Depends(get_current_user_role)]) -> None:
+    if role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="You don't have permission to access this resource.")
+
+def admins_or_owners(role: Annotated[UserRole, Depends(get_current_user_role)]) -> None:
+    if role not in [UserRole.ADMIN, UserRole.OWNER]:
+        raise HTTPException(status_code=403, detail="You don't have permission to access this resource.")
