@@ -55,7 +55,7 @@ class APIBookingExpertsClient(BookingExpertsClient):
                         "date": sp["date"],
                         "price": {
                             "currency": sp["currency"],
-                            "value": sp["value"],
+                            "value": str(sp["value"]),
                         },
                     },
                     "meta": {"temp_id": sp["temp_id"]},
@@ -82,7 +82,7 @@ class APIBookingExpertsClient(BookingExpertsClient):
                         "length_of_stay": cp["length_of_stay"],
                         "price": {
                             "currency": cp["currency"],
-                            "value": cp["value"],
+                            "value": str(cp["value"]),
                         },
                     },
                     "meta": {"temp_id": cp["temp_id"]},
