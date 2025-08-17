@@ -11,8 +11,7 @@ class Settings(BaseSettings):
     GUESTY_API_BASE_URL: str
     BOOKING_EXPERTS_API_KEY: str
     BOOKING_EXPERTS_API_BASE_URL: str
-    BOOKING_EXPERTS_CLIENT_SECRET: str
-    BOOKING_EXPERTS_CLIENT_ID: str
+    BOOKING_EXPERTS_ADMINISTRATION_ID: str
     ENVIRONMENT: str = "development"
 
     class Config:
