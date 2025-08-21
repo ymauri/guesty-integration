@@ -10,4 +10,4 @@ client = SyncCalendarPricesService(APIBookingExpertsClient())
 async def update_calendar_data(data: ListingCalendarUpdatedResponse):
 
     # Call the appropriate method on the client to update the calendar data
-    await client.sync_prices(22671, 3114, data.calendar)
+    await client.sync_prices(data.calendar)
