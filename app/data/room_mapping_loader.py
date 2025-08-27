@@ -1,9 +1,10 @@
 import json
 from pathlib import Path
-from config import ENVIRONMENT
+from config import get_settings
 
+settings = get_settings()
 
-if ENVIRONMENT == "development":
+if settings.ENVIRONMENT == "development":
     ROOM_MAPPING_PATH = Path(__file__).parent / "room_mapping_dev.json"
 else:
     ROOM_MAPPING_PATH = Path("/app/data/room_mapping_prod.json")
