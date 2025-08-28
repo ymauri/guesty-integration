@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     BOOKING_EXPERTS_API_BASE_URL: str
     BOOKING_EXPERTS_ADMINISTRATION_ID: str
     ENVIRONMENT: str = "development"
+    EMAIL_SENDER: str
+    EMAIL_RECEIVER: str
+    EMAIL_PASSWORD: str
 
     class Config:
         env_file = ".env"
