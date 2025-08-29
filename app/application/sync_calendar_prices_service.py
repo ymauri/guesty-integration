@@ -33,18 +33,18 @@ class SyncCalendarPricesService:
                         price_list_id = mapping["booking_experts_price_list_id"]
                         administration_id = mapping["booking_experts_administration_id"]
 
-                    await self.booking_experts_client.patch_master_price_list(
-                        price_list_id=price_list_id,
-                        administration_id=administration_id,
-                        simple_prices=simple_prices
-                    )
+                        await self.booking_experts_client.patch_master_price_list(
+                            price_list_id=price_list_id,
+                            administration_id=administration_id,
+                            simple_prices=simple_prices
+                        )
 
-                    send_execution_email(
-                        subject="Prices Synced Successfully",
-                        body=f"Prices for listing {mapping['name']} have been synced successfully."
-                    )
+                        send_execution_email(
+                            subject="Prices Synced Successfully",
+                            body=f"Prices for listing {mapping['name']} have been synced successfully. \n Details: {str(simple_prices)}"
+                        )
 
-                    break
+                        break
             except Exception as e:
                 send_execution_email(
                     subject="Error Syncing Prices",
