@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     BOOKING_EXPERTS_API_KEY: str
     BOOKING_EXPERTS_API_BASE_URL: str
     BOOKING_EXPERTS_ADMINISTRATION_ID: str
+    BOOKING_EXPERTS_MASTER_PRICE_LIST_ID: str
     ENVIRONMENT: str = "development"
     EMAIL_SENDER: str
     EMAIL_RECEIVER: str
