@@ -28,14 +28,10 @@ class SyncCalendarPricesService:
                 administration_id=settings.BOOKING_EXPERTS_ADMINISTRATION_ID,
                 simple_prices=simple_prices
             )
-
-            send_execution_email(
-                subject="Prices Synced Successfully",
-                body=f"Guesty calendar {str(guesty_calendar)}. \n Details: {str(simple_prices)}"
-            )
+            
         except Exception as e:
             send_execution_email(
                 subject="Error Syncing Prices",
-                body=f"An error occurred while syncing prices: {str(e)}"
+                body=f"An error occurred while syncing prices: {str(e)}. \n Guesty calendar: {str(guesty_calendar)}. \n Details: {str(simple_prices)}"
             )
             
