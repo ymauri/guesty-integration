@@ -1,5 +1,4 @@
 import httpx
-from datetime import datetime, timedelta
 from typing import Any
 from diskcache import Cache
 from app.config import get_settings
@@ -92,5 +91,19 @@ class GuestyClient:
         params = {"limit": limit, "offset": offset}
         async with httpx.AsyncClient() as client:
             resp = await client.get(f"{self.base_url}/listings", headers=self._headers(), params=params)
+            resp.raise_for_status()
+            return resp.json()
+        
+    async def list_calendar(self, listing_id: str, start_date: str, end_date: str) -> Any:
+        if not self._is_prod():
+            logger.warning("Guesty calendar fetch skipped: not in production")
+            return []
+
+        params = {
+            "startDate": start_date,
+            "endDate": end_date,
+        }
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(f"{self.base_url}/availability-pricing/api/calendar/listings/{listing_id}", headers=self._headers(), params=params)
             resp.raise_for_status()
             return resp.json()
