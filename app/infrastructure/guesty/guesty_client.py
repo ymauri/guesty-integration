@@ -13,12 +13,12 @@ class GuestyClient:
         self.auth_url = settings.GUESTY_AUTH_URL
         self.base_url = settings.GUESTY_API_BASE_URL
         self.cache = cache
+        self.TOKEN_KEY = "guesty_auth_info"
         self._auth_info = self._validate_auth_info()
 
     def _validate_auth_info(self) -> dict:
-        token_key = "guesty_auth_info"
 
-        if token := self.cache.get(token_key):
+        if token := self.cache.get(self.TOKEN_KEY):
             return token
 
         try:
@@ -36,7 +36,7 @@ class GuestyClient:
             auth_info = response.json()
 
             # TTL: 24h - 5min buffer = 23h55min
-            self.cache.set(token_key, auth_info, expire=60 * 60 * 24 - 300)
+            self.cache.set(self.TOKEN_KEY, auth_info, expire=60 * 60 * 24 - 300)
             return auth_info
 
         except Exception as e:
@@ -100,9 +100,9 @@ class GuestyClient:
             return []
 
         params = {
+            "listingIds": listing_id,
             "startDate": start_date,
-            "endDate": end_date,
-            "listingIds": listing_id
+            "endDate": end_date
         }
         async with httpx.AsyncClient() as client:
             resp = await client.get(f"{self.base_url}/availability-pricing/api/calendar/listings/", headers=self._headers(), params=params)
