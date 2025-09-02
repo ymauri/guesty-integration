@@ -15,16 +15,16 @@ class SyncCalendarPricesService:
         calendar_entries_by_listing = {}
         
         for entry in guesty_calendar:
-            calendar_entries_by_listing.setdefault(entry.listingId, []).append(entry)
+            calendar_entries_by_listing.setdefault(entry["listingId"], []).append(entry)
 
         for listing_id, calendar_entries in calendar_entries_by_listing.items():
             simple_prices = []
             for calendar_entry in calendar_entries:
                 simple_prices.append({
                     "temp_id": uuid4().hex,
-                    "date": calendar_entry.date,
-                    "currency": calendar_entry.currency,
-                    "value": calendar_entry.price
+                    "date": calendar_entry["date"],
+                    "currency": calendar_entry["currency"],
+                    "value": calendar_entry["price"]
                 })
 
             try:
