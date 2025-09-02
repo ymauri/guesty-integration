@@ -13,7 +13,7 @@ class RetrieveCalendarPrices:
         try:
             guesty_calendar = await self.guesty_client.list_calendar(listing_id, start_date, end_date)
             await self.sync_calendar_prices_service.sync_prices(
-                guesty_calendar.data.days if guesty_calendar and hasattr(guesty_calendar, 'data') and hasattr(guesty_calendar.data, 'days') else []
+                guesty_calendar["data"]["days"] if guesty_calendar and "data" in guesty_calendar and "days" in guesty_calendar["data"] else []
             )
             return {"status": "Calendar prices retrieved and sync initiated"}
         except Exception as e:
