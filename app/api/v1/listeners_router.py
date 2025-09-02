@@ -24,5 +24,4 @@ async def retrieve_calendar_prices(
     end_date: str,
     retriever: RetrieveCalendarPrices = Depends(get_retrieve_calendar_prices),
 ):
-    await retriever.get_calendar_prices(listing_id, start_date, end_date)
-    return {"status": "Calendar prices retrieval initiated"}
+    return await retriever.get_calendar_prices(listing_id, start_date, end_date)

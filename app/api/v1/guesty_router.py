@@ -7,7 +7,7 @@ from api.v1.schemas.guesty_schema import RegisterWebhookRequest
 router = APIRouter()
 
 @router.get("/webhooks")
-async def get_webhooks(cache = Depends(get_cache), role: str = Depends(only_admins)):
+async def get_webhooks(cache = Depends(get_cache)):
     guesty = GuestyClient(cache)
     return await guesty.list_webhooks()
 
@@ -25,3 +25,9 @@ async def delete_webhook(webhook_id: str, cache = Depends(get_cache), role: str 
 async def get_listings(cache = Depends(get_cache), role: str = Depends(only_admins)):
     guesty = GuestyClient(cache)
     return await guesty.list_listings()
+
+@router.post("/clear-auth-cache")
+async def clear_auth_cache(cache = Depends(get_cache)):
+    guesty = GuestyClient(cache)
+    guesty.clear_auth_cache()
+    return {"status": "Auth cache cleared"}

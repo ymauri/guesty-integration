@@ -102,8 +102,16 @@ class GuestyClient:
         params = {
             "startDate": start_date,
             "endDate": end_date,
+            "listingIds": listing_id
         }
         async with httpx.AsyncClient() as client:
-            resp = await client.get(f"{self.base_url}/availability-pricing/api/calendar/listings/{listing_id}", headers=self._headers(), params=params)
+            resp = await client.get(f"{self.base_url}/availability-pricing/api/calendar/listings/", headers=self._headers(), params=params)
             resp.raise_for_status()
             return resp.json()
+        
+    def clear_auth_cache(self) -> None:
+            try:
+                self.cache.delete(self.TOKEN_KEY)
+                logger.info("[Guesty] Auth cache cleared")
+            except Exception as e:
+                logger.warning(f"[Guesty] Failed to clear auth cache: {e}")
