@@ -22,6 +22,7 @@ async def retrieve_calendar_prices(
     listing_id: str,
     start_date: str,
     end_date: str,
+    is_simple: bool = True,
     retriever: RetrieveCalendarPrices = Depends(get_retrieve_calendar_prices),
 ):
-    return await retriever.get_calendar_prices(listing_id, start_date, end_date)
+    return await retriever.get_calendar_prices(listing_id, start_date, end_date, is_simple)

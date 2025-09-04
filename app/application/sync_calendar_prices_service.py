@@ -9,29 +9,40 @@ class SyncCalendarPricesService:
     def __init__(self, booking_experts_client: BookingExpertsClient):
         self.booking_experts_client = booking_experts_client
 
-    async def sync_prices(self, guesty_calendar: list = None) -> None:
+    async def sync_prices(self, guesty_calendar: list = None, is_simple: bool = True) -> None:
         try:
             if not guesty_calendar:
                 return
         
             simple_prices = []
+            complex_prices = []
             for day in guesty_calendar:
-                simple_prices.append({
-                    "temp_id": uuid4().hex,
-                    "date": day["date"],
-                    "currency": day["currency"],
-                    "value": day["price"]
-                })
+                if is_simple:
+                    simple_prices.append({
+                        "temp_id": uuid4().hex,
+                        "date": day.date,
+                        "currency": day.currency,
+                        "value": day.price
+                    })
+                else:
+                    complex_prices.append({
+                        "temp_id": uuid4().hex,
+                        "arrival_date": day.date,
+                        "currency": day.currency,
+                        "value": day.price,
+                        "length_of_stay": 1
+                    })
 
             await self.booking_experts_client.patch_master_price_list(
                 price_list_id=settings.BOOKING_EXPERTS_MASTER_PRICE_LIST_ID,
                 administration_id=settings.BOOKING_EXPERTS_ADMINISTRATION_ID,
-                simple_prices=simple_prices
+                simple_prices=simple_prices,
+                complex_prices=complex_prices
             )
             
         except Exception as e:
             send_execution_email(
                 subject="Error Syncing Prices",
-                body=f"An error occurred while syncing prices: {str(e)}. \n Guesty calendar: {str(guesty_calendar)}. \n Details: {str(simple_prices)}"
+                body=f"An error occurred while syncing prices: {str(e)}. \n Guesty calendar: {str(guesty_calendar)}. \n Details: {str(prices)}"
             )
             
