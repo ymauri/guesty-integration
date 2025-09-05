@@ -9,7 +9,7 @@ class SyncCalendarPricesService:
     def __init__(self, booking_experts_client: BookingExpertsClient):
         self.booking_experts_client = booking_experts_client
 
-    async def sync_prices(self, guesty_calendar: list = None, is_simple: bool = True) -> None:
+    async def sync_prices(self, guesty_calendar: list = None, is_simple: bool = False) -> None:
         try:
             if not guesty_calendar:
                 return
