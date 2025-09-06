@@ -43,6 +43,6 @@ class SyncCalendarPricesService:
         except Exception as e:
             send_execution_email(
                 subject="Error Syncing Prices",
-                body=f"An error occurred while syncing prices: {str(e)}. \n Guesty calendar: {str(guesty_calendar)}. \n Details: {str(prices)}"
+                body=f"An error occurred while syncing prices: {str(e)}. \n Guesty calendar: {str(guesty_calendar)}. \n Details: {str(simple_prices + complex_prices)}"
             )
             
