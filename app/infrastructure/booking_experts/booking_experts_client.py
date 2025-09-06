@@ -80,7 +80,7 @@ class APIBookingExpertsClient(BookingExpertsClient):
                     "attributes": {
                         "arrival_date": cp["arrival_date"],
                         "length_of_stay": cp["length_of_stay"],
-                        "is_active": True,
+                        "is_active": "true",
                         "price": {
                             "currency": cp["currency"],
                             "value": str(cp["value"]),
