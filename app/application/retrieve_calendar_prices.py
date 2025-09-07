@@ -4,6 +4,7 @@ from app.application.sync_calendar_prices_service import SyncCalendarPricesServi
 from app.infrastructure.guesty.guesty_client import GuestyClient
 from app.application.sync_calendar_prices_service import SyncCalendarPricesService
 from app.api.v1.schemas.guesty_schema import Day
+from app.data.guesty_listings import guesty_listings
 
 class RetrieveCalendarPrices:
     def __init__(self, guesty_client: GuestyClient, sync_calendar_prices_service: SyncCalendarPricesService):
@@ -12,6 +13,10 @@ class RetrieveCalendarPrices:
 
     async def get_calendar_prices(self, listing_id: str, start_date: str, end_date: str, is_simple: bool = False) -> Any:
         try:
+            if listing_id not in guesty_listings():
+                logger.info(f"Skipping listing {listing_id} as it's in the skip list.")
+                return {"status": "Listing skipped"}
+            
             guesty_calendar = await self.guesty_client.list_calendar(listing_id, start_date, end_date)
             days = list(
                 map(
