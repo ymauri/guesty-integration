@@ -9,7 +9,7 @@ from typing import List, Any, Sequence
 from app.domain.booking_experts.entities import SimplePrice, ComplexPrice
 
 settings = get_settings()
-BATCH_SIZE = 2
+BATCH_SIZE = 100
 THROTTLE_SECONDS = 0.5
 
 def _chunks(seq: Sequence[Any], size: int):
