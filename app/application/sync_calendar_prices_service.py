@@ -1,11 +1,10 @@
 import asyncio
 from domain.booking_experts.services import BookingExpertsClient
-from uuid import uuid4
 from app.shared.email_logger import send_execution_email
 from config import get_settings
 from venv import logger
 from app.data.guesty_listings import guesty_listings
-from typing import List, Any, Sequence
+from typing import Any, Sequence
 from app.domain.booking_experts.entities import SimplePrice, ComplexPrice
 
 settings = get_settings()
