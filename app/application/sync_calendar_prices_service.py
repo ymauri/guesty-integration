@@ -8,7 +8,7 @@ from typing import Any, Sequence
 from app.domain.booking_experts.entities import SimplePrice, ComplexPrice
 
 settings = get_settings()
-BATCH_SIZE = 100
+BATCH_SIZE = 20
 THROTTLE_SECONDS = 0.5
 
 def _chunks(seq: Sequence[Any], size: int):
@@ -57,7 +57,7 @@ class SyncCalendarPricesService:
         except Exception as e:
             send_execution_email(
                 subject="Error Syncing Prices",
-                body=f"An error occurred while syncing prices: {str(e)}. \n Guesty calendar: {str(guesty_calendar)}. \n Length: {len(guesty_calendar)}. \n Details: {str(simple_prices + complex_prices)}."
+                body=f"An error occurred while syncing prices: {str(e.with_traceback())}. \n Guesty calendar: {str(guesty_calendar)}. \n Length: {len(guesty_calendar)}. \n Details: {str(simple_prices + complex_prices)}."
             )
 
 
