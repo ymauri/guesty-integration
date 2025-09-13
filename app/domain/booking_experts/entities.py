@@ -13,7 +13,7 @@ class SimplePrice:
             "temp_id": self.temp_id,
             "date": self.date,
             "currency": self.currency,
-            "value": self.value
+            "value": str(self.value)
         }
         
 class ComplexPrice:
@@ -30,6 +30,6 @@ class ComplexPrice:
             "temp_id": self.temp_id,
             "arrival_date": self.arrival_date,
             "currency": self.currency,
-            "value": self.value,
+            "value": str(self.value),
             "length_of_stay": self.length_of_stay
         }
