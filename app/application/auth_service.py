@@ -34,6 +34,6 @@ class AuthService:
             hashed_password=hashed_password,
             is_active=True,
             role=role,
-            created_at=datetime.utcnow()        
+            created_at=datetime.now()
         )
         self.user_repository.create_user(user)
