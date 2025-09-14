@@ -31,7 +31,7 @@ def insert_user(email: str, password: str, role: UserRole = UserRole.ADMIN):
         hashed_password=pwd_context.hash(password),
         is_active=True,
         role=role.value,
-        created_at=datetime.utcnow()
+        created_at=datetime.now()
     )
     db.add(user)
     db.commit()

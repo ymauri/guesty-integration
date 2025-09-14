@@ -16,7 +16,7 @@ def test_user():
         hashed_password=pwd_context.hash("StrongPassword123"),
         is_active=True,
         role=UserRole.ADMIN,
-        created_at=datetime.utcnow()
+        created_at=datetime.now()
     )
 
 
