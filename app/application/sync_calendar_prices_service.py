@@ -1,4 +1,7 @@
 import asyncio
+import time
+import random
+from collections import deque
 from domain.booking_experts.services import BookingExpertsClient
 from app.shared.email_logger import send_execution_email
 from config import get_settings
@@ -8,16 +11,33 @@ from typing import Any, Sequence
 from app.domain.booking_experts.entities import SimplePrice, ComplexPrice
 
 settings = get_settings()
-BATCH_SIZE = 20
+BATCH_SIZE = 30
 THROTTLE_SECONDS = 0.5
+THROTTLE_RANGE = (0.15, 0.60)         # random pause after each success (seconds)
+MAX_REQUESTS_PER_WINDOW = 30          # tune if BEX feels like ~20/min limit
+WINDOW_SECONDS = 60
 
 def _chunks(seq: Sequence[Any], size: int):
     for i in range(0, len(seq), size):
         yield seq[i:i + size]
 
+async def _rate_gate(self):
+    """Ensure we don't exceed MAX_REQUESTS_PER_WINDOW within WINDOW_SECONDS."""
+    now = time.monotonic()
+    while self._request_times and now - self._request_times[0] >= WINDOW_SECONDS:
+        self._request_times.popleft()
+
+    if len(self._request_times) >= MAX_REQUESTS_PER_WINDOW:
+        # Sleep until the oldest request falls out of the window + a little jitter
+        sleep_for = (WINDOW_SECONDS - (now - self._request_times[0])) + random.uniform(0.1, 0.5)
+        await asyncio.sleep(max(0.0, sleep_for))
+
+    self._request_times.append(time.monotonic())
+
 class SyncCalendarPricesService:
     def __init__(self, booking_experts_client: BookingExpertsClient):
         self.booking_experts_client = booking_experts_client
+        self._request_times = deque() 
 
     async def sync_prices(self, guesty_calendar: list = None, is_simple: bool = False) -> None:
         try:
@@ -49,8 +69,7 @@ class SyncCalendarPricesService:
                 sent += len(batch)
 
                  # Optional: tiny delay to avoid bursting right at the limit
-                if THROTTLE_SECONDS:
-                    await asyncio.sleep(THROTTLE_SECONDS)
+                await self._rate_gate()
         
             logger.info(f"Sent {sent}/{total} calendar items to Booking Experts in batches of {BATCH_SIZE}.")
             
