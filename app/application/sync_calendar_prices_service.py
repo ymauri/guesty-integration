@@ -21,19 +21,6 @@ def _chunks(seq: Sequence[Any], size: int):
     for i in range(0, len(seq), size):
         yield seq[i:i + size]
 
-async def _rate_gate(self):
-    """Ensure we don't exceed MAX_REQUESTS_PER_WINDOW within WINDOW_SECONDS."""
-    now = time.monotonic()
-    while self._request_times and now - self._request_times[0] >= WINDOW_SECONDS:
-        self._request_times.popleft()
-
-    if len(self._request_times) >= MAX_REQUESTS_PER_WINDOW:
-        # Sleep until the oldest request falls out of the window + a little jitter
-        sleep_for = (WINDOW_SECONDS - (now - self._request_times[0])) + random.uniform(0.1, 0.5)
-        await asyncio.sleep(max(0.0, sleep_for))
-
-    self._request_times.append(time.monotonic())
-
 class SyncCalendarPricesService:
     def __init__(self, booking_experts_client: BookingExpertsClient):
         self.booking_experts_client = booking_experts_client
@@ -90,4 +77,17 @@ class SyncCalendarPricesService:
                     simple_prices=simple_prices,
                     complex_prices=complex_prices
                 )
+
+    async def _rate_gate(self):
+        """Ensure we don't exceed MAX_REQUESTS_PER_WINDOW within WINDOW_SECONDS."""
+        now = time.monotonic()
+        while self._request_times and now - self._request_times[0] >= WINDOW_SECONDS:
+            self._request_times.popleft()
+
+        if len(self._request_times) >= MAX_REQUESTS_PER_WINDOW:
+            # Sleep until the oldest request falls out of the window + a little jitter
+            sleep_for = (WINDOW_SECONDS - (now - self._request_times[0])) + random.uniform(0.1, 0.5)
+            await asyncio.sleep(max(0.0, sleep_for))
+
+        self._request_times.append(time.monotonic())
             
