@@ -21,7 +21,7 @@ primary_region = 'cdg'
   memory = '2gb'
   cpu_kind = 'performance'
   cpus = 4
-  memory_mb = 2048
+  memory_mb = 8192
 
 [env]
   PYTHONPATH = "/app/app"
