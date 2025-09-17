@@ -1,24 +1,34 @@
+
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+
 import asyncio
 import os
 import random
 from venv import logger
 from app.infrastructure.repositories.process_lock_repository import ProcessLockRepository
+from app.infrastructure.repositories.calendar_repository import CalendarRepository
 from app.application.sync_calendar_prices_service import SyncCalendarPricesService
-from app.domain.booking_experts.services import BookingExpertsClient
+from app.infrastructure.booking_experts.booking_experts_client import APIBookingExpertsClient
 
 WORKER_NAME = os.getenv("CALENDAR_WORKER_NAME", "calendar-worker")
 IS_SIMPLE = os.getenv("WORKER_IS_SIMPLE", "0") == "1"
-BATCH_SIZE = int(os.getenv("WORKER_BATCH_SIZE", "20"))
-MAX_BATCHES_PER_TICK = int(os.getenv("WORKER_MAX_BATCHES_PER_TICK", "5"))
+BATCH_SIZE = int(os.getenv("WORKER_BATCH_SIZE", "30"))
+MAX_BATCHES_PER_TICK = int(os.getenv("WORKER_MAX_BATCHES_PER_TICK", "3"))
 INTER_BATCH_SLEEP_MS = int(os.getenv("WORKER_INTER_BATCH_SLEEP_MS", "250"))
 IDLE_SLEEP_SEC = int(os.getenv("WORKER_IDLE_SLEEP_SEC", "30"))
 LOCK_TTL_SEC = int(os.getenv("WORKER_LOCK_TTL_SEC", "300"))
 
 async def run_worker():
-    repo = ProcessLockRepository()
-    service = SyncCalendarPricesService(BookingExpertsClient(), repo)
-
-    acquired = await repo.acquire_worker_lock(WORKER_NAME, ttl_seconds=LOCK_TTL_SEC)
+    calendar_repository = CalendarRepository()
+    process_lock_repository = ProcessLockRepository()
+    booking_experts_client = APIBookingExpertsClient()  # Placeholder, as we don't use it directly in the worker
+    service = SyncCalendarPricesService(
+        repository=calendar_repository,
+        process_lock_repository=process_lock_repository,
+        booking_experts_client=booking_experts_client
+    )
+    acquired = await process_lock_repository.acquire_worker_lock(WORKER_NAME, ttl_seconds=LOCK_TTL_SEC)
     if not acquired:
         logger.info(f"[{WORKER_NAME}] Another worker holds the lock. Exiting.")
         return
@@ -27,10 +37,10 @@ async def run_worker():
     try:
         while True:
             # refresh lock so it doesn't expire mid-run
-            await repo.refresh_worker_lock(WORKER_NAME)
+            await process_lock_repository.refresh_worker_lock(WORKER_NAME)
 
             # Check queue depth
-            pending = await repo.count_unprocessed(is_simple=IS_SIMPLE)
+            pending = await calendar_repository.count_unprocessed(is_simple=IS_SIMPLE)
             if pending <= 0:
                 # No work: sleep (with a little jitter) and loop
                 sleep_s = IDLE_SLEEP_SEC + random.randint(0, 5)
@@ -51,7 +61,7 @@ async def run_worker():
             await asyncio.sleep(1.0 + random.random())
 
     finally:
-        await repo.release_worker_lock(WORKER_NAME)
+        await process_lock_repository.release_worker_lock(WORKER_NAME)
         logger.info(f"[{WORKER_NAME}] Stopped and lock released.")
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
-from config import get_settings
+from app.config import get_settings
 from app.infrastructure.booking_experts.booking_experts_client import APIBookingExpertsClient
 from app.infrastructure.guesty.guesty_client import GuestyClient
 from app.application.enqueue_calendar_prices_service import EnqueueCalendarPricesService
@@ -40,10 +40,9 @@ def get_sync_calendar_prices_service(
     repository: CalendarRepository = Depends(get_calendar_repository),
     process_lock_repository: ProcessLockRepository = Depends(get_process_lock_repository),
     be_client: APIBookingExpertsClient = Depends(get_booking_experts_client),
-    email_errors_to: Annotated[str | None, Depends(lambda: settings.EMAIL_ERRORS_TO)] = None,
 ) -> SyncCalendarPricesService:
     from app.application.sync_calendar_prices_service import SyncCalendarPricesService
-    return SyncCalendarPricesService(repository, process_lock_repository, be_client, email_errors_to)
+    return SyncCalendarPricesService(repository, process_lock_repository, be_client)
 
 def get_retrieve_calendar_prices(
     guesty: GuestyClient = Depends(get_guesty_client),

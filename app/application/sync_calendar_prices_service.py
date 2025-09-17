@@ -6,6 +6,7 @@ from app.infrastructure.repositories.calendar_repository import CalendarReposito
 from app.infrastructure.repositories.process_lock_repository import ProcessLockRepository
 from app.infrastructure.booking_experts.booking_experts_client import BookingExpertsClient
 from uuid import uuid4
+from app.shared.email_logger import send_execution_email
 
 settings = get_settings()
 
@@ -15,12 +16,10 @@ class SyncCalendarPricesService:
         repository: CalendarRepository,
         process_lock_repository: ProcessLockRepository,
         booking_experts_client: BookingExpertsClient,
-        email_errors_to: Optional[str] = None
     ):
         self.repository = repository
         self.process_lock_repository = process_lock_repository
         self.booking_experts_client = booking_experts_client
-        self.email_errors_to = email_errors_to
 
     async def drain_queue_tick(
         self,
@@ -81,3 +80,16 @@ class SyncCalendarPricesService:
                 "length_of_stay": 1,
             } for r in rows]
             return [], complex_prices
+    
+    def _email_error(self, subject: str, err: Exception, guesty_calendar=None, details=None):
+        try:
+            send_execution_email(
+                subject=subject,
+                body=(
+                    f"Error: {str(err)}\n"
+                    f"Guesty calendar (truncated): {str(guesty_calendar)[:1500] if guesty_calendar else '-'}\n"
+                    f"Details: {str(details)[:1500] if details else '-'}"
+                )
+            )
+        except Exception:
+            pass
