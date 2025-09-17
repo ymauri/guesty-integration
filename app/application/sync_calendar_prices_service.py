@@ -7,6 +7,7 @@ from app.infrastructure.repositories.process_lock_repository import ProcessLockR
 from app.infrastructure.booking_experts.booking_experts_client import BookingExpertsClient
 from uuid import uuid4
 from app.shared.email_logger import send_execution_email
+from app.domain.exceptions.max_batch_errors_exceeded import MaxBatchErrorsExceeded
 
 settings = get_settings()
 
@@ -27,13 +28,16 @@ class SyncCalendarPricesService:
         is_simple: bool,
         batch_size: int = 20,
         max_batches_this_tick: int = 5,
-        inter_batch_sleep_ms: int = 250
+        inter_batch_sleep_ms: int = 250,
+        max_errors_per_tick: int = 3
     ) -> int:
         """
         Process up to `max_batches_this_tick` batches, sleeping briefly between them.
         Returns the number of rows processed in this tick.
         """
         processed_rows = 0
+        consecutive_errors = 0
+
         for _ in range(max_batches_this_tick):
             batch_rows = await self.repository.reserve_batch(limit=batch_size, is_simple=is_simple)
             if not batch_rows:
@@ -50,6 +54,8 @@ class SyncCalendarPricesService:
                 await self.repository.mark_processed([r["id"] for r in batch_rows])
                 processed_rows += len(batch_rows)
 
+                consecutive_errors = 0
+
                 # Rate limiting: tiny pause + jitter to avoid thundering herd / API timeout
                 sleep_ms = inter_batch_sleep_ms + random.randint(0, 200)
                 await asyncio.sleep(sleep_ms / 1000.0)
@@ -57,6 +63,13 @@ class SyncCalendarPricesService:
             except Exception as be_err:
                 await self.repository.release_locks([r["id"] for r in batch_rows])
                 self._email_error("Error sending batch to Booking Experts", be_err, details=batch_rows)
+
+                consecutive_errors += 1
+                if consecutive_errors >= max_errors_per_tick:
+                    # Stop this tick immediately
+                    raise MaxBatchErrorsExceeded(
+                        f"More than {max_errors_per_tick} errors occurred in this tick."
+                    )
                 # Backoff before trying the next batch
                 await asyncio.sleep(1.0 + random.random())
                 # continue to next batch
