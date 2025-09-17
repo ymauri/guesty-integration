@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import AsyncMock
 from uuid import UUID
 from domain.booking_experts.services import BookingExpertsClient
-from application.sync_calendar_prices_service import SyncCalendarPricesService
+from app.application.enqueue_calendar_prices_service import EnqueueCalendarPricesService
 
 
 class CalendarEntryStub:
@@ -16,7 +16,7 @@ class CalendarEntryStub:
 async def test_sync_calendar_prices_calls_patch_master_price_list():
     # Arrange
     mock_client = AsyncMock(spec=BookingExpertsClient)
-    service = SyncCalendarPricesService(booking_experts_client=mock_client)
+    service = EnqueueCalendarPricesService(booking_experts_client=mock_client)
 
     guesty_calendar = [
         CalendarEntryStub(date="2025-08-01", currency="EUR", price="120.00"),
@@ -27,7 +27,7 @@ async def test_sync_calendar_prices_calls_patch_master_price_list():
     administration_id = "admin-1"
 
     # Act
-    await service.sync_prices(
+    await service.enqueue(
         price_list_id=price_list_id,
         administration_id=administration_id,
         guesty_calendar=guesty_calendar,

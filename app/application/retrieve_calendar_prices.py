@@ -1,13 +1,13 @@
 from venv import logger
 from typing import Any
-from app.application.sync_calendar_prices_service import SyncCalendarPricesService
+from app.application.enqueue_calendar_prices_service import EnqueueCalendarPricesService
 from app.infrastructure.guesty.guesty_client import GuestyClient
-from app.application.sync_calendar_prices_service import SyncCalendarPricesService
+from app.application.enqueue_calendar_prices_service import EnqueueCalendarPricesService
 from app.api.v1.schemas.guesty_schema import Day
 from app.data.guesty_listings import guesty_listings
 
 class RetrieveCalendarPrices:
-    def __init__(self, guesty_client: GuestyClient, sync_calendar_prices_service: SyncCalendarPricesService):
+    def __init__(self, guesty_client: GuestyClient, sync_calendar_prices_service: EnqueueCalendarPricesService):
         self.guesty_client = guesty_client
         self.sync_calendar_prices_service = sync_calendar_prices_service
 
@@ -24,7 +24,7 @@ class RetrieveCalendarPrices:
                     guesty_calendar["data"]["days"] if "data" in guesty_calendar and "days" in guesty_calendar["data"] else []
                 )
             )
-            await self.sync_calendar_prices_service.sync_prices(days, is_simple)
+            await self.sync_calendar_prices_service.enqueue(days, is_simple)
             return {"status": "Calendar prices retrieved and sync initiated"}
         except Exception as e:
             logger.error(f"Error fetching calendar prices: {e}")

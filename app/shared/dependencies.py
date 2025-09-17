@@ -2,11 +2,12 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
 from config import get_settings
-from infrastructure.booking_experts.booking_experts_client import APIBookingExpertsClient
-from infrastructure.guesty.guesty_client import GuestyClient
-from application.sync_calendar_prices_service import SyncCalendarPricesService
+from app.infrastructure.booking_experts.booking_experts_client import APIBookingExpertsClient
+from app.infrastructure.guesty.guesty_client import GuestyClient
+from app.application.enqueue_calendar_prices_service import EnqueueCalendarPricesService
 from app.shared.cache import get_cache
-from application.retrieve_calendar_prices import RetrieveCalendarPrices
+from app.application.retrieve_calendar_prices import RetrieveCalendarPrices
+from app.infrastructure.repositories.calendar_repository import CalendarRepository
 
 settings = get_settings()
 
@@ -21,13 +22,17 @@ def get_booking_experts_client() -> APIBookingExpertsClient:
 def get_guesty_client(cache = Depends(get_cache)) -> GuestyClient:
     return GuestyClient(cache)
 
+def get_calendar_repository() -> CalendarRepository:
+    return CalendarRepository()
+
 def get_sync_calendar_prices_service(
     be_client: APIBookingExpertsClient = Depends(get_booking_experts_client),
-) -> SyncCalendarPricesService:
-    return SyncCalendarPricesService(be_client)
+    repository: CalendarRepository = Depends(get_calendar_repository),
+) -> EnqueueCalendarPricesService:
+    return EnqueueCalendarPricesService(be_client, repository)
 
 def get_retrieve_calendar_prices(
     guesty: GuestyClient = Depends(get_guesty_client),
-    sync_service: SyncCalendarPricesService = Depends(get_sync_calendar_prices_service),
+    sync_service: EnqueueCalendarPricesService = Depends(get_sync_calendar_prices_service),
 ) -> RetrieveCalendarPrices:
     return RetrieveCalendarPrices(guesty, sync_service)
