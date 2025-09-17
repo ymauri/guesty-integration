@@ -31,6 +31,11 @@ CREATE TABLE IF NOT EXISTS guesty_calendar_day (
 CREATE INDEX IF NOT EXISTS idx_gcd_processed ON guesty_calendar_day(processed, is_simple);
 CREATE INDEX IF NOT EXISTS idx_gcd_locked ON guesty_calendar_day(locked_at);
 CREATE INDEX IF NOT EXISTS idx_gcd_created ON guesty_calendar_day(created_at);
+
+CREATE TABLE IF NOT EXISTS process_lock (
+  name TEXT PRIMARY KEY,
+  acquired_at TEXT NOT NULL
+);
 """
 
 async def ensure_db_dir():

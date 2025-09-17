@@ -1,5 +1,4 @@
 from domain.booking_experts.services import BookingExpertsClient
-from uuid import uuid4
 from app.shared.email_logger import send_execution_email
 from config import get_settings
 from venv import logger
@@ -16,7 +15,6 @@ class EnqueueCalendarPricesService:
     async def enqueue(self, guesty_calendar: list = None, is_simple: bool = False) -> None:
         """
         1) Save all days to SQLite (queue).
-        2) Drain the queue in small batches to Booking Experts.
         Nothing stays loaded in memory beyond each small step.
         """
         if not guesty_calendar:

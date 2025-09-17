@@ -7,9 +7,9 @@ from app.api.v1.schemas.guesty_schema import Day
 from app.data.guesty_listings import guesty_listings
 
 class RetrieveCalendarPrices:
-    def __init__(self, guesty_client: GuestyClient, sync_calendar_prices_service: EnqueueCalendarPricesService):
+    def __init__(self, guesty_client: GuestyClient, enqueue_calendar_prices_service: EnqueueCalendarPricesService):
         self.guesty_client = guesty_client
-        self.sync_calendar_prices_service = sync_calendar_prices_service
+        self.enqueue_calendar_prices_service = enqueue_calendar_prices_service
 
     async def get_calendar_prices(self, listing_id: str, start_date: str, end_date: str, is_simple: bool = False) -> Any:
         try:
@@ -24,7 +24,7 @@ class RetrieveCalendarPrices:
                     guesty_calendar["data"]["days"] if "data" in guesty_calendar and "days" in guesty_calendar["data"] else []
                 )
             )
-            await self.sync_calendar_prices_service.enqueue(days, is_simple)
+            await self.enqueue_calendar_prices_service.enqueue(days, is_simple)
             return {"status": "Calendar prices retrieved and sync initiated"}
         except Exception as e:
             logger.error(f"Error fetching calendar prices: {e}")

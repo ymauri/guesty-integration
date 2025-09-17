@@ -3,14 +3,14 @@ from fastapi import APIRouter
 from app.application.enqueue_calendar_prices_service import EnqueueCalendarPricesService
 from application.retrieve_calendar_prices import RetrieveCalendarPrices
 from fastapi import Depends
-from app.shared.dependencies import get_sync_calendar_prices_service, get_retrieve_calendar_prices
+from app.shared.dependencies import get_enqueue_calendar_prices_service, get_retrieve_calendar_prices
 
 router = APIRouter()
 
 @router.post("/listing-calendar-update")
 async def update_calendar_data(
     data: ListingCalendarUpdatedResponse,
-    service: EnqueueCalendarPricesService = Depends(get_sync_calendar_prices_service),
+    service: EnqueueCalendarPricesService = Depends(get_enqueue_calendar_prices_service),
 ):
     await service.enqueue(data.calendar)
     return {"status": "Calendar queued"}  # explicit return helps tests
