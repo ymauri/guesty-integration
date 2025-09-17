@@ -2,7 +2,7 @@
 import os
 import aiosqlite
 from pathlib import Path
-from config import get_settings
+from app.config import get_settings
 
 settings = get_settings()
 

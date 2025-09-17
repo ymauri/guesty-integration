@@ -1,7 +1,7 @@
 import asyncio
 import random
 from typing import Optional
-from config import get_settings
+from app.config import get_settings
 from app.infrastructure.repositories.calendar_repository import CalendarRepository
 from app.infrastructure.repositories.process_lock_repository import ProcessLockRepository
 from app.infrastructure.booking_experts.booking_experts_client import BookingExpertsClient

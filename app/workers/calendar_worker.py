@@ -1,11 +1,10 @@
-# app/workers/calendar_worker.py
 import asyncio
 import os
 import random
 from venv import logger
 from app.infrastructure.repositories.process_lock_repository import ProcessLockRepository
 from app.application.sync_calendar_prices_service import SyncCalendarPricesService
-from domain.booking_experts.services import BookingExpertsClient
+from app.domain.booking_experts.services import BookingExpertsClient
 
 WORKER_NAME = os.getenv("CALENDAR_WORKER_NAME", "calendar-worker")
 IS_SIMPLE = os.getenv("WORKER_IS_SIMPLE", "0") == "1"
