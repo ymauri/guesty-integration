@@ -28,15 +28,15 @@ primary_region = 'cdg'
   SQLITE_DB_PATH = "/data/database.db"
 
 [processes]
-  web = "uvicorn main:app --host 0.0.0.0 --port 8080"
+  app = "uvicorn main:app --host 0.0.0.0 --port 8080"
   worker = "python -m app.workers.calendar_worker"
 
 # ensure a volume is mounted for SQLite durability
 [mounts]
   source="data"
   destination="/data"
-  processes=["web","worker"]   # NEW: mount volume to both processes
+  processes=["app","worker"]   # NEW: mount volume to both processes
 
 # scale: exactly one worker
 [[services]]
-  processes = ["web"]
+  processes = ["app"]
