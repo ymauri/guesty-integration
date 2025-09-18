@@ -40,8 +40,8 @@ class EnqueueCalendarPricesService:
                 subject=subject,
                 body=(
                     f"Error: {str(err)}\n"
-                    f"Guesty calendar (truncated): {str(guesty_calendar)[:1500] if guesty_calendar else '-'}\n"
-                    f"Details: {str(details)[:1500] if details else '-'}"
+                    f"Guesty calendar (truncated): {str(guesty_calendar) if guesty_calendar else '-'}\n"
+                    f"Details: {str(details) if details else '-'}"
                 )
             )
         except Exception:
