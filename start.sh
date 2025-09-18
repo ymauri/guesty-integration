@@ -3,7 +3,7 @@ set -euxo pipefail
 
 python - <<'PY'
 import asyncio
-from app.db.sqlite import init_db
+from app.infrastructure.db.sqlite import init_db
 asyncio.run(init_db())
 print("DB schema ensured")
 PY
