@@ -33,7 +33,7 @@ primary_region = 'cdg'
 
 # ensure a volume is mounted for SQLite durability
 [mounts]
-  source="data"
+  source="guesty_data"
   destination="/data"
   processes=["app","worker"]   # NEW: mount volume to both processes
 
