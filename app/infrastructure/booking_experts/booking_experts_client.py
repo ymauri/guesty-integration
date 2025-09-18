@@ -2,7 +2,7 @@ import httpx
 from typing import Any, Dict, List
 from loguru import logger
 from app.config import get_settings
-from domain.booking_experts.services import BookingExpertsClient
+from app.domain.booking_experts.services import BookingExpertsClient
 
 settings = get_settings()
 

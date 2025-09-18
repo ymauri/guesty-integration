@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     EMAIL_SENDER: str
     EMAIL_RECEIVER: str
     EMAIL_PASSWORD: str
+    SQLITE_DB_PATH: str
 
     class Config:
         env_file = ".env"
