@@ -26,9 +26,10 @@ primary_region = 'cdg'
 [env]
   PYTHONPATH = "/app/app"  
   SQLITE_DB_PATH = "/data/database.db"
+  PYTHONUNBUFFERED = "1"
 
 [processes]
-  app = "/start.sh"
+  app = "/app/start.sh"
 
 # ensure a volume is mounted for SQLite durability
 [mounts]
