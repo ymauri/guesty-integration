@@ -6,6 +6,7 @@ import asyncio
 import os
 import random
 from venv import logger
+from app.infrastructure.db.sqlite import init_db 
 from app.infrastructure.repositories.process_lock_repository import ProcessLockRepository
 from app.infrastructure.repositories.calendar_repository import CalendarRepository
 from app.application.sync_calendar_prices_service import SyncCalendarPricesService
@@ -22,7 +23,8 @@ LOCK_TTL_SEC = int(os.getenv("WORKER_LOCK_TTL_SEC", "600"))
 MAX_ERRORS_PER_TICK = int(os.getenv("WORKER_MAX_ERRORS_PER_TICK", "2"))
 MAX_CONSECUTIVE_TICK_FAILURES = int(os.getenv("WORKER_MAX_CONSECUTIVE_TICK_FAILURES", "2"))
 
-async def run_worker():
+async def run_worker():    
+    await init_db()
     calendar_repository = CalendarRepository()
     process_lock_repository = ProcessLockRepository()
     booking_experts_client = APIBookingExpertsClient()  # Placeholder, as we don't use it directly in the worker
