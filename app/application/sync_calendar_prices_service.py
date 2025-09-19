@@ -1,9 +1,10 @@
 import asyncio
 import random
-from typing import Optional
+from typing import Optional, Dict
 from app.config import get_settings
 from app.infrastructure.repositories.calendar_repository import CalendarRepository
 from app.infrastructure.repositories.process_lock_repository import ProcessLockRepository
+from app.infrastructure.repositories.listing_price_list_repository import ListingPriceListRepository
 from app.infrastructure.booking_experts.booking_experts_client import BookingExpertsClient
 from uuid import uuid4
 from app.shared.email_logger import send_execution_email
@@ -16,10 +17,12 @@ class SyncCalendarPricesService:
         self,
         repository: CalendarRepository,
         process_lock_repository: ProcessLockRepository,
+        listing_price_list_repository: ListingPriceListRepository,
         booking_experts_client: BookingExpertsClient,
     ):
         self.repository = repository
         self.process_lock_repository = process_lock_repository
+        self.listing_price_list_repository = listing_price_list_repository
         self.booking_experts_client = booking_experts_client
 
     async def drain_queue_tick(
@@ -44,13 +47,18 @@ class SyncCalendarPricesService:
                 break
 
             try:
-                simple_prices, complex_prices = self._map_rows_to_be_payload(batch_rows, is_simple)
-                await self.booking_experts_client.patch_master_price_list(
-                    price_list_id=settings.BOOKING_EXPERTS_MASTER_PRICE_LIST_ID,
-                    administration_id=settings.BOOKING_EXPERTS_ADMINISTRATION_ID,
-                    simple_prices=simple_prices,
-                    complex_prices=complex_prices
-                )
+                # Group prices by their respective price lists
+                price_lists_data = await self._group_prices_by_price_list(batch_rows, is_simple)
+                
+                # Process each price list separately
+                for price_list_id, price_data in price_lists_data.items():
+                    await self.booking_experts_client.patch_master_price_list(
+                        price_list_id=price_list_id,
+                        administration_id=settings.BOOKING_EXPERTS_ADMINISTRATION_ID,
+                        simple_prices=price_data["simple_prices"],
+                        complex_prices=price_data["complex_prices"]
+                    )
+                
                 await self.repository.mark_processed([r["id"] for r in batch_rows])
                 processed_rows += len(batch_rows)
 
@@ -75,7 +83,52 @@ class SyncCalendarPricesService:
                 # continue to next batch
         return processed_rows
 
+    async def _group_prices_by_price_list(self, rows: list[dict], is_simple: bool) -> Dict[str, Dict]:
+        """
+        Group prices by their respective Booking Experts price list IDs.
+        Returns a dictionary where keys are price_list_ids and values contain simple_prices and complex_prices.
+        """
+        price_lists_data = {}
+        
+        for row in rows:
+            # Get the price list ID for this listing
+            price_list_id = await self.listing_price_list_repository.get_price_list_for_listing(row["listing_id"])
+            
+            # Skip if no price list mapping found
+            if not price_list_id:
+                continue
+                
+            if price_list_id not in price_lists_data:
+                price_lists_data[price_list_id] = {
+                    "simple_prices": [],
+                    "complex_prices": []
+                }
+            
+            # Create price data based on type
+            if is_simple:
+                price_data = {
+                    "temp_id": uuid4().hex,
+                    "date": row["date"],
+                    "currency": row["currency"],
+                    "value": row["price"],
+                }
+                price_lists_data[price_list_id]["simple_prices"].append(price_data)
+            else:
+                price_data = {
+                    "temp_id": uuid4().hex,
+                    "arrival_date": row["date"],
+                    "currency": row["currency"],
+                    "value": row["price"],
+                    "length_of_stay": 1,
+                }
+                price_lists_data[price_list_id]["complex_prices"].append(price_data)
+        
+        return price_lists_data
+
     def _map_rows_to_be_payload(self, rows: list[dict], is_simple: bool):
+        """
+        Legacy method - kept for backward compatibility but not used in the new flow.
+        """
         if is_simple:
             simple_prices = [{
                 "temp_id": uuid4().hex,

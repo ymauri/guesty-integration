@@ -36,6 +36,18 @@ CREATE TABLE IF NOT EXISTS process_lock (
   name TEXT PRIMARY KEY,
   acquired_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS listing_price_list_mapping (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  guesty_listing_id TEXT NOT NULL UNIQUE,
+  booking_experts_price_list_id TEXT NOT NULL,
+  is_active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_lplm_listing ON listing_price_list_mapping(guesty_listing_id);
+CREATE INDEX IF NOT EXISTS idx_lplm_active ON listing_price_list_mapping(is_active);
 """
 
 async def ensure_db_dir():

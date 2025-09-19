@@ -25,3 +25,18 @@ class PendingPriceSummary(BaseModel):
 class WorkerStatusSummary(BaseModel):
     total_pending: int
     pending_by_date_hour: List[PendingPriceSummary]
+
+class ListingPriceListMapping(BaseModel):
+    id: int
+    guesty_listing_id: str
+    booking_experts_price_list_id: str
+    is_active: bool
+    created_at: str
+    updated_at: str
+
+class CreateListingMappingRequest(BaseModel):
+    guesty_listing_id: str
+    booking_experts_price_list_id: str
+
+class UpdateListingMappingRequest(BaseModel):
+    booking_experts_price_list_id: str

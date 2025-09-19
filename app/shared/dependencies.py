@@ -11,6 +11,8 @@ from app.infrastructure.repositories.calendar_repository import CalendarReposito
 from app.infrastructure.repositories.process_lock_repository import ProcessLockRepository
 from app.application.sync_calendar_prices_service import SyncCalendarPricesService
 from app.application.worker_status_service import WorkerStatusService
+from app.application.listing_price_list_service import ListingPriceListService
+from app.infrastructure.repositories.listing_price_list_repository import ListingPriceListRepository
 
 settings = get_settings()
 
@@ -31,6 +33,9 @@ def get_calendar_repository() -> CalendarRepository:
 def get_process_lock_repository() -> ProcessLockRepository:
     return ProcessLockRepository()
 
+def get_listing_price_list_repository() -> ListingPriceListRepository:
+    return ListingPriceListRepository()
+
 def get_enqueue_calendar_prices_service(
     be_client: APIBookingExpertsClient = Depends(get_booking_experts_client),
     repository: CalendarRepository = Depends(get_calendar_repository),
@@ -40,10 +45,11 @@ def get_enqueue_calendar_prices_service(
 def get_sync_calendar_prices_service(
     repository: CalendarRepository = Depends(get_calendar_repository),
     process_lock_repository: ProcessLockRepository = Depends(get_process_lock_repository),
+    listing_price_list_repository: ListingPriceListRepository = Depends(get_listing_price_list_repository),
     be_client: APIBookingExpertsClient = Depends(get_booking_experts_client),
 ) -> SyncCalendarPricesService:
     from app.application.sync_calendar_prices_service import SyncCalendarPricesService
-    return SyncCalendarPricesService(repository, process_lock_repository, be_client)
+    return SyncCalendarPricesService(repository, process_lock_repository, listing_price_list_repository, be_client)
 
 def get_retrieve_calendar_prices(
     guesty: GuestyClient = Depends(get_guesty_client),
@@ -55,3 +61,8 @@ def get_worker_status_service(
     repository: CalendarRepository = Depends(get_calendar_repository),
 ) -> WorkerStatusService:
     return WorkerStatusService(repository)
+
+def get_listing_price_list_service(
+    repository: ListingPriceListRepository = Depends(get_listing_price_list_repository),
+) -> ListingPriceListService:
+    return ListingPriceListService(repository)
