@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 class RegisterWebhookRequest(BaseModel):
     target_url: str
@@ -14,3 +15,13 @@ class Day(BaseModel):
 class ListingCalendarUpdatedResponse(BaseModel):       
     calendar: list[Day]
     event: str = "listing.calendar.updated"
+
+class PendingPriceSummary(BaseModel):
+    date: str  # YYYY-MM-DD
+    hour: int  # 0-23
+    count: int
+    is_simple: bool
+
+class WorkerStatusSummary(BaseModel):
+    total_pending: int
+    pending_by_date_hour: List[PendingPriceSummary]

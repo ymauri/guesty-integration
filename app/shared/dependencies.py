@@ -10,6 +10,7 @@ from app.application.retrieve_calendar_prices import RetrieveCalendarPrices
 from app.infrastructure.repositories.calendar_repository import CalendarRepository
 from app.infrastructure.repositories.process_lock_repository import ProcessLockRepository
 from app.application.sync_calendar_prices_service import SyncCalendarPricesService
+from app.application.worker_status_service import WorkerStatusService
 
 settings = get_settings()
 
@@ -49,3 +50,8 @@ def get_retrieve_calendar_prices(
     sync_service: EnqueueCalendarPricesService = Depends(get_enqueue_calendar_prices_service),
 ) -> RetrieveCalendarPrices:
     return RetrieveCalendarPrices(guesty, sync_service)
+
+def get_worker_status_service(
+    repository: CalendarRepository = Depends(get_calendar_repository),
+) -> WorkerStatusService:
+    return WorkerStatusService(repository)

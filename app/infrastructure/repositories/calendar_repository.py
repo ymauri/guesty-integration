@@ -126,3 +126,26 @@ class CalendarRepository:
             return int(row["c"])
         finally:
             await conn.close()
+
+    async def get_pending_prices_summary(self) -> List[dict]:
+        """
+        Get pending prices grouped by created_at date and hour.
+        Returns list of dicts with date, hour, count, and is_simple.
+        """
+        conn = await open_db()
+        try:
+            sql = """
+            SELECT 
+                DATE(created_at) as date,
+                CAST(STRFTIME('%H', created_at) AS INTEGER) as hour,
+                is_simple,
+                COUNT(*) as count
+            FROM guesty_calendar_day 
+            WHERE processed = 0
+            GROUP BY DATE(created_at), STRFTIME('%H', created_at), is_simple
+            ORDER BY date DESC, hour DESC, is_simple
+            """
+            rows = await (await conn.execute(sql)).fetchall()
+            return [dict(r) for r in rows]
+        finally:
+            await conn.close()
