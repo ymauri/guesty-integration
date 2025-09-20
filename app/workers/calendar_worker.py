@@ -9,6 +9,7 @@ from venv import logger
 from app.infrastructure.db.sqlite import init_db 
 from app.infrastructure.repositories.process_lock_repository import ProcessLockRepository
 from app.infrastructure.repositories.calendar_repository import CalendarRepository
+from app.infrastructure.repositories.listing_price_list_repository import ListingPriceListRepository
 from app.application.sync_calendar_prices_service import SyncCalendarPricesService
 from app.infrastructure.booking_experts.booking_experts_client import APIBookingExpertsClient
 from app.domain.exceptions.max_batch_errors_exceeded import MaxBatchErrorsExceeded
@@ -27,10 +28,12 @@ async def run_worker():
     await init_db()
     calendar_repository = CalendarRepository()
     process_lock_repository = ProcessLockRepository()
-    booking_experts_client = APIBookingExpertsClient()  # Placeholder, as we don't use it directly in the worker
+    listing_price_list_repository = ListingPriceListRepository()
+    booking_experts_client = APIBookingExpertsClient()
     service = SyncCalendarPricesService(
         repository=calendar_repository,
         process_lock_repository=process_lock_repository,
+        listing_price_list_repository=listing_price_list_repository,
         booking_experts_client=booking_experts_client
     )
     acquired = await process_lock_repository.acquire_worker_lock(WORKER_NAME, ttl_seconds=LOCK_TTL_SEC)
